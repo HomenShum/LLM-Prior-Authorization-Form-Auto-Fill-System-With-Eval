@@ -1,0 +1,166 @@
+[
+    {
+        "type": "text",
+        "key": "age",
+        "content": "What is the patient's age in years?"
+    },
+    {
+        "type": "text",
+        "key": "weight",
+        "content": "What is the patient's weight (including unit)?"
+    },
+    {
+        "type": "text",
+        "key": "height",
+        "content": "What is the patient's height (including unit)?"
+    },
+    {
+        "type": "text",
+        "key": "bmi",
+        "content": "What is the patient's body mass index (BMI) in kilograms per square meter (kg/m2)"
+    },
+    {
+        "type": "boolean",
+        "key": "expedited_review",
+        "content": "Expedited/Urgent Review Requested"
+    },
+    {
+        "type": "boolean",
+        "key": "other_weight_loss_meds",
+        "content": "Will the medication be used concomitantly with any other weight loss medications?"
+    },
+    {
+        "type": "text",
+        "key": "diagnosis",
+        "content": "What is the diagnosis for the medication being requested?"
+    },
+    {
+        "type": "boolean",
+        "key": "continuation",
+        "content": "Is this a continuation of therapy?"
+    },
+    {
+        "type": "boolean",
+        "key": "cont_drug_prev_approved",
+        "content": "Has the requested drug been dispensed at a pharmacy and approved for coverage previously by a prior plan?",
+        "visible_if": "{continuation} = true"
+    },
+    {
+        "type": "text",
+        "key": "cont_duration",
+        "content": "How long has the patient been on the requested medication?",
+        "visible_if": "{continuation} = true"
+    },
+    {
+        "type": "boolean",
+        "key": "cont_less_6m",
+        "content": "Has the patient been on Zepbound therapy for less than 6 months?",
+        "visible_if": "{continuation} = true"
+    },
+    {
+        "type": "boolean",
+        "key": "cont_wl_gt5percent",
+        "content": "Has the patient had a weight loss of more than or equal to 5% of baseline body weight?",
+        "visible_if": "{continuation} = true"
+    },
+    {
+        "type": "boolean",
+        "key": "cont_maintain_wl",
+        "content": "Has the patient been receiving Zepbound therapy for greater than 6 months and is continuing to experience or maintain weight loss?",
+        "visible_if": "{continuation} = true and {cont_less_6m} = false"
+    },
+    {
+        "type": "boolean",
+        "key": "cont_adherent_maint_dose",
+        "content": "Does the patient meet BOTH of the following: \na. Patient has been adherent to 1 month of treatment,\nb. Patient is currently on a maintenance dose of 5 mg–15 mg once weekly?",
+        "visible_if": "{continuation} = true"
+    },
+    {
+        "type": "boolean",
+        "key": "cont_positive_response",
+        "content": "Has the patient had a positive response to treatment or had improvement in symptoms?",
+        "visible_if": "{continuation} = true"
+    },
+    {
+        "type": "boolean",
+        "key": "cont_need_assessed",
+        "content": "Has the patient's need for continued therapy been assessed within the previous year?",
+        "visible_if": "{continuation} = true"
+    },
+    {
+        "type": "text",
+        "key": "cont_baseline_weight",
+        "content": "What is the patient's baseline weight (including unit)?",
+        "visible_if": "{continuation} = true"
+    },
+    {
+        "type": "text",
+        "key": "cont_baseline_bmi",
+        "content": "What is the patient's baseline body mass index (BMI) in kilograms per square meter (kg/m2)?",
+        "visible_if": "{continuation} = true"
+    },
+    {
+        "type": "boolean",
+        "key": "cont_bmi_ge30",
+        "content": "Does the patient have a baseline BMI greater than or equal to 30 kg per square meter?",
+        "visible_if": "{continuation} = true"
+    },
+    {
+        "type": "boolean",
+        "key": "cont_bmi_ge27_comorbid",
+        "content": "Does the patient have a baseline BMI greater than or equal to 27 kg per square meter AND at least one weight-related comorbid condition (e.g., hypertension, type 2 diabetes, dyslipidemia)?",
+        "visible_if": "{continuation} = true"
+    },
+    {
+        "type": "boolean",
+        "key": "coadmin_tirzepatide",
+        "content": "Is the requested medication being co-administered with ANY of the following: (1) Tirzepatide-containing products (e.g., Mounjaro), (2) GLP-1 receptor agonists (e.g., Saxenda, Trulicity, Victoza)?"
+    },
+    {
+        "type": "boolean",
+        "key": "antiobesity_3m_therapy",
+        "content": "Has the patient completed at least 3 months of therapy at a stable maintenance dose?"
+    },
+    {
+        "type": "boolean",
+        "key": "antiobesity_wl_gt5percent",
+        "content": "Has the patient lost at least 5% of baseline body weight or continued to maintain their initial 5% weight loss?",
+        "visible_if": "{antiobesity_3m_therapy} = true"
+    },
+    {
+        "type": "boolean",
+        "key": "antiobesity_bmi_ge30",
+        "content": "Does the patient have a BMI greater than or equal to 30 kg per square meter?"
+    },
+    {
+        "type": "boolean",
+        "key": "antiobesity_bmi_ge27_comorbid",
+        "content": "Does the patient have a BMI greater than or equal to 27 kg per square meter AND at least one weight-related comorbid condition (e.g., hypertension, type 2 diabetes, dyslipidemia)?"
+    },
+    {
+        "type": "boolean",
+        "key": "antiobesity_charts_submitted",
+        "content": "Have chart notes showing the patient's BMI or weight-related comorbid condition been submitted?"
+    },
+    {
+        "type": "boolean",
+        "key": "antiobesity_wt_mgmt_6m",
+        "content": "Has the patient participated in a comprehensive weight-management program (diet, exercise, follow-up) for at least 6 months prior to drug therapy?"
+    },
+    {
+        "type": "boolean",
+        "key": "antiobesity_wt_mgmt_3m",
+        "content": "Has the patient engaged in a trial of behavioral modification and dietary restriction for at least 3 months?",
+        "visible_if": "{antiobesity_wt_mgmt_6m} = false"
+    },
+    {
+        "type": "boolean",
+        "key": "antiobesity_with_diet",
+        "content": "Will the requested medication be used with a reduced-calorie diet and increased physical activity?"
+    },
+    {
+        "type": "boolean",
+        "key": "antiobesity_age_12_17",
+        "content": "Is the patient 12 to 17 years of age with a BMI showing obesity?"
+    }
+]

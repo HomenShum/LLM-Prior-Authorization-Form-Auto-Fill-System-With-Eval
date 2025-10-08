@@ -1,0 +1,74 @@
+[project]
+name = "engineer-take-home"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Mel van Londen", email = "mel@develophealth.io"}
+]
+readme = "README.md"
+requires-python = ">=3.10,<3.14"
+dependencies = [
+    "fastapi>=0.115.12",
+    "uvicorn>=0.34.3",
+    "python-dotenv>=1.0.0",
+    "pydantic-logfire>=0.0.1",
+    "logfire[asyncpg]>=3.18.0",
+    "opentelemetry-instrumentation-asyncpg>=0.55b1",
+    "asyncpg>=0.30.0",
+]
+
+[project.scripts]
+generate-patient-data = "scripts.generate_patient_data:main"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*", "scripts*"]
+exclude = ["tests*"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.4.0",
+    "httpx>=0.28.1",
+    "faker>=37.4.0",
+    "tqdm>=4.67.1",
+    "pre-commit>=4.2.0",
+    "openai>=1.86.0",
+    "pydantic-ai>=0.0.14",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.4.0",
+    "httpx>=0.28.1",
+    "faker>=37.4.0",
+    "tqdm>=4.67.1",
+    "pre-commit>=4.2.0",
+    "openai>=1.86.0",
+    "pydantic-ai>=0.0.14",
+    "ruff>=0.11.13",
+]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+]
+ignore = ["E501"]  # Ignore line too long
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.ruff.lint.isort]
+known-first-party = ["app", "scripts"]

@@ -1,0 +1,30 @@
+{
+  "patient": {
+    "first_name": "John",
+    "last_name": "Doe",
+    "date_of_birth": "1970-01-01",
+    "gender": "Male",
+    "prescription": {
+      "medication": "Zepbound",
+      "dosage": "5 mg",
+      "frequency": "once weekly",
+      "duration": "ongoing"
+    },
+    "visit_notes": ["Patient presents for follow-up regarding weight management therapy. Has been compliant with medication regimen."]
+  },
+  "question_set": {
+    "name": "Prior Authorization Questions",
+    "questions": [
+      {
+        "type": "text",
+        "key": "patient_bmi",
+        "content": "What is the patient's BMI?"
+      },
+      {
+        "type": "boolean",
+        "key": "tried_lifestyle_modifications",
+        "content": "Has the patient tried lifestyle modifications?"
+      }
+    ]
+  }
+} 
