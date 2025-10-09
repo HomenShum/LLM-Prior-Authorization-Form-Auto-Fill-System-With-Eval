@@ -18,6 +18,7 @@ class QuestionSet(BaseModel):
 class Answer(BaseModel):
     question: Question
     value: str | bool
+    rationale: str | None = None
 
 
 class Prescription(BaseModel):
@@ -37,8 +38,31 @@ class Patient(BaseModel):
 
 
 class AnswerInput(BaseModel):
+    model_config = {"protected_namespaces": ()}
+
     patient: Patient
     question_set: QuestionSet
+    # Optional clinician feedback notes to guide the LLM
+    feedbacks: list[str] | None = None
+    # Optional: request extra validation pass after initial generation
+    validate: bool | None = None
+
+
+# ---- File processing (PDF/text) ----
+class FileItem(BaseModel):
+    filename: str
+    # Base64-encoded data URL for the file, e.g., "data:application/pdf;base64,...."
+    file_data: str
+
+
+class ProcessFilesRequest(BaseModel):
+    method: Literal["files_api", "base64"]
+    files: list[FileItem]
+
+
+class ProcessFilesResponse(BaseModel):
+    notes: list[str]
+    errors: list[str] = []
 
 
 class AnswerOutput(BaseModel):

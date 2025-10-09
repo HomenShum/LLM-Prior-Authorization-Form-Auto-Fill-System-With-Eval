@@ -37,5 +37,3 @@ wheels/
 
 # Logs
 *.log
-
-venv/
