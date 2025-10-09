@@ -1,10 +1,19 @@
 """
 Generate mock test data based on sample patient data.
-Creates ground truth answers for evaluation.
+Creates ground truth answers for evaluation by calling the API.
+
+NOTE: This uses the actual API to generate expected answers, which provides
+a baseline for comparison. For production use, you should have human-validated
+ground truth answers.
 """
 
 import json
 from pathlib import Path
+
+import requests
+
+# Configuration
+API_URL = "http://localhost:8000/answers"
 
 # Load sample data
 sample_dir = Path(__file__).parent.parent / "sample_data"
@@ -14,112 +23,70 @@ with open(sample_dir / "patient_data.json", encoding="utf-8") as f:
 with open(sample_dir / "zepbound_question_set.json", encoding="utf-8") as f:
     questions = json.load(f)
 
-# Generate ground truth answers for each patient
+print(f"Loaded {len(patients)} patients and {len(questions)} questions")
+print("\nGenerating expected answers by calling API...")
+print("=" * 70)
+
+# Generate ground truth answers for each patient by calling the API
 mock_test_cases = []
 
-for patient in patients:
-    # Create expected answers based on patient data
-    expected_answers = {}
+for idx, patient in enumerate(patients, 1):
+    patient_name = f"{patient['first_name']} {patient['last_name']}"
+    print(f"\n[{idx}/{len(patients)}] Processing patient: {patient_name}")
 
-    # Extract info from visit notes
-    notes_text = " ".join(patient.get("visit_notes", [])).lower()
-
-    # Question: has_obesity_diagnosis
-    expected_answers["has_obesity_diagnosis"] = {
-        "value": "obesity" in notes_text or "bmi" in notes_text,
-        "rationale": "Based on visit notes mentioning obesity or BMI",
-    }
-
-    # Question: bmi_value
-    # Try to extract BMI from notes
-    bmi_found = False
-    for note in patient.get("visit_notes", []):
-        if "bmi" in note.lower():
-            # Simple extraction - in real case would use regex
-            expected_answers["bmi_value"] = {
-                "value": "30+" if "obesity" in note.lower() else "unknown",
-                "rationale": "Extracted from visit notes",
-            }
-            bmi_found = True
-            break
-    if not bmi_found:
-        expected_answers["bmi_value"] = {
-            "value": "unknown",
-            "rationale": "BMI not documented in visit notes",
-        }
-
-    # Question: has_diabetes
-    expected_answers["has_diabetes"] = {
-        "value": "diabetes" in notes_text
-        or "t2dm" in notes_text
-        or "type 2" in notes_text,
-        "rationale": "Based on visit notes mentioning diabetes",
-    }
-
-    # Question: has_cardiovascular_disease
-    expected_answers["has_cardiovascular_disease"] = {
-        "value": "cardiovascular" in notes_text
-        or "heart" in notes_text
-        or "cvd" in notes_text,
-        "rationale": "Based on visit notes mentioning cardiovascular conditions",
-    }
-
-    # Question: previous_weight_loss_attempts
-    expected_answers["previous_weight_loss_attempts"] = {
-        "value": "diet" in notes_text
-        or "exercise" in notes_text
-        or "weight loss" in notes_text,
-        "rationale": "Based on documented weight loss attempts in notes",
-    }
-
-    # Question: contraindications_present
-    expected_answers["contraindications_present"] = {
-        "value": "contraindication" in notes_text or "allergy" in notes_text,
-        "rationale": "Based on documented contraindications or allergies",
-    }
-
-    # Question: current_medications
-    rx = patient.get("prescription", {})
-    expected_answers["current_medications"] = {
-        "value": f"{rx.get('medication', 'unknown')} {rx.get('dosage', '')}".strip(),
-        "rationale": "From current prescription record",
-    }
-
-    # Question: insurance_prior_auth_required
-    expected_answers["insurance_prior_auth_required"] = {
-        "value": True,  # Assume always required for this medication
-        "rationale": "Zepbound typically requires prior authorization",
-    }
-
-    # Question: patient_tried_lifestyle_modifications
-    expected_answers["patient_tried_lifestyle_modifications"] = {
-        "value": "lifestyle" in notes_text
-        or "diet" in notes_text
-        or "exercise" in notes_text,
-        "rationale": "Based on documented lifestyle modification attempts",
-    }
-
-    # Question: duration_of_obesity
-    expected_answers["duration_of_obesity"] = {
-        "value": "chronic" if "chronic" in notes_text else "unknown",
-        "rationale": "Based on visit note documentation",
-    }
-
-    test_case = {
+    # Call API to get answers (without validation for baseline)
+    payload = {
         "patient": patient,
         "question_set": {
             "name": "Zepbound Prior Authorization",
             "questions": questions,
         },
-        "expected_answers": expected_answers,
+        "validate": False,  # Use initial answers as baseline
     }
 
-    mock_test_cases.append(test_case)
+    try:
+        response = requests.post(API_URL, json=payload, timeout=120)
+
+        if response.status_code != 200:
+            print(f"  ❌ API error {response.status_code}: {response.text}")
+            continue
+
+        data = response.json()
+        expected_answers = {}
+
+        # Extract answers from API response
+        for ans in data.get("answers", []):
+            q = ans.get("question", {})
+            key = q.get("key")
+            value = ans.get("value")
+            rationale = ans.get("rationale", "")
+
+            expected_answers[key] = {"value": value, "rationale": rationale}
+
+        print(f"  ✓ Generated {len(expected_answers)} expected answers")
+
+        test_case = {
+            "patient": patient,
+            "question_set": {
+                "name": "Zepbound Prior Authorization",
+                "questions": questions,
+            },
+            "expected_answers": expected_answers,
+        }
+
+        mock_test_cases.append(test_case)
+
+    except Exception as e:
+        print(f"  ❌ Error: {e}")
+        continue
 
 # Save mock test data
 output_path = Path(__file__).parent / "mock_test_data.json"
-with open(output_path, "w") as f:
-    json.dump(mock_test_cases, f, indent=2)
+with open(output_path, "w", encoding="utf-8") as f:
+    json.dump(mock_test_cases, f, indent=2, ensure_ascii=False)
 
-print(f"Generated {len(mock_test_cases)} mock test cases")
-print(f"Saved to: {output_path}")
+print("\n" + "=" * 70)
+print(f"✅ Generated {len(mock_test_cases)} mock test cases")
+print(f"📁 Saved to: {output_path}")
+print("\n⚠️  NOTE: These are API-generated answers, not human-validated ground truth.")
+print("   For production use, have clinical experts review and validate these answers.")

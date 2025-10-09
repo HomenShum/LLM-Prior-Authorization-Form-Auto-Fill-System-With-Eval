@@ -19,6 +19,10 @@ class Answer(BaseModel):
     question: Question
     value: str | bool
     rationale: str | None = None
+    # Validation-specific fields (populated when validate=true)
+    change_needed: bool | None = None
+    changed_result: str | bool | None = None
+    change_rationale: str | None = None
 
 
 class Prescription(BaseModel):

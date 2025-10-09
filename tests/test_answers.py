@@ -270,3 +270,247 @@ def test_f1_score_with_validation(mock_test_data):
 
     # Assert minimum F1 score threshold
     assert avg_f1 > 0.5, f"F1 score too low: {avg_f1:.3f}"
+
+
+@pytest.mark.skipif(
+    not RUN_LIVE, reason="Set RUN_LIVE_OPENAI=1 in env to run live OpenAI tests."
+)
+def test_validation_metadata_fields(mock_test_data):
+    """Test that validation metadata fields are properly populated when validate=True."""
+    print("\n" + "=" * 60)
+    print("Testing Validation Metadata Fields")
+    print("=" * 60)
+
+    # Use first test case
+    test_case = mock_test_data[0]
+    patient = test_case["patient"]
+    question_set = test_case["question_set"]
+
+    patient_name = f"{patient['first_name']} {patient['last_name']}"
+    print(f"\nTesting patient: {patient_name}")
+
+    # Build payload with validation enabled
+    payload = {
+        "patient": patient,
+        "question_set": question_set,
+        "validate": True,
+    }
+
+    # Call API
+    response = client.post("/answers", json=payload)
+    assert response.status_code == 200, f"API error: {response.text}"
+
+    # Parse response
+    data = response.json()
+    answers = data.get("answers", [])
+
+    print(f"\nReceived {len(answers)} answers")
+
+    # Check that validation metadata fields exist
+    changes_found = 0
+    for ans in answers:
+        q = ans.get("question", {})
+        key = q.get("key")
+
+        # These fields should be present (even if None)
+        assert "change_needed" in ans, f"Missing 'change_needed' field for {key}"
+        assert "changed_result" in ans, f"Missing 'changed_result' field for {key}"
+        assert "change_rationale" in ans, f"Missing 'change_rationale' field for {key}"
+
+        # If a change was made, verify the fields are populated
+        if ans.get("change_needed") is True:
+            changes_found += 1
+            print(f"\n  Change detected for '{key}':")
+            print(f"    Original value: {ans.get('value')}")
+            print(f"    Changed to: {ans.get('changed_result')}")
+            print(f"    Rationale: {ans.get('change_rationale')}")
+
+            # Verify changed_result is not None when change_needed is True
+            assert ans.get("changed_result") is not None, (
+                f"changed_result should not be None when change_needed=True for {key}"
+            )
+            assert ans.get("change_rationale"), (
+                f"change_rationale should be provided when change_needed=True for {key}"
+            )
+
+    print(f"\n{changes_found} changes were made during validation")
+    print("=" * 60)
+
+    # At least verify the structure is correct (changes may or may not occur)
+    assert len(answers) > 0, "Should have at least one answer"
+
+
+@pytest.mark.skipif(
+    not RUN_LIVE, reason="Set RUN_LIVE_OPENAI=1 in env to run live OpenAI tests."
+)
+def test_llm_judge_without_validation(mock_test_data):
+    """Test LLM-as-a-judge evaluation without validation pass."""
+    import requests
+    from llm_judge import (
+        AnswerJudgment,
+        compute_llm_judge_metrics,
+        judge_answer,
+    )
+    from openai import OpenAI
+
+    print("\n" + "=" * 60)
+    print("Testing LLM Judge WITHOUT Validation Pass")
+    print("=" * 60)
+
+    openai_client = OpenAI()
+    all_judgments = []
+
+    # Test first 2 cases
+    for idx, test_case in enumerate(mock_test_data[:2], 1):
+        patient = test_case["patient"]
+        question_set = test_case["question_set"]
+        expected_answers = test_case["expected_answers"]
+
+        patient_name = f"{patient['first_name']} {patient['last_name']}"
+        print(f"\n[{idx}] Testing patient: {patient_name}")
+
+        # Build payload without validation
+        payload = {
+            "patient": patient,
+            "question_set": question_set,
+            "validate": False,
+        }
+
+        # Call API
+        response = requests.post(
+            "http://localhost:8000/answers", json=payload, timeout=600
+        )
+        assert response.status_code == 200, f"API error: {response.text}"
+
+        # Parse response and judge each answer
+        data = response.json()
+        for ans in data.get("answers", []):
+            q = ans.get("question", {})
+            key = q.get("key")
+            question_text = q.get("content", "")
+            predicted_value = ans.get("value")
+
+            expected_entry = expected_answers.get(key, {})
+            expected_value = expected_entry.get("value", "unknown")
+
+            # Judge the answer
+            judgment_result = judge_answer(
+                question_key=key,
+                question_text=question_text,
+                expected_value=str(expected_value),
+                predicted_value=str(predicted_value),
+                client=openai_client,
+            )
+
+            judgment = AnswerJudgment(
+                question_key=key,
+                question_text=question_text,
+                expected_value=str(expected_value),
+                predicted_value=str(predicted_value),
+                judgment=judgment_result,
+            )
+            all_judgments.append(judgment)
+
+    # Compute metrics
+    metrics = compute_llm_judge_metrics(all_judgments)
+
+    print("\n" + "-" * 60)
+    print(f"Total Questions: {metrics['total_questions']}")
+    print(f"Correct Answers: {metrics['matches']}")
+    print(f"Accuracy: {metrics['accuracy']:.1%}")
+    print(f"High-Confidence Accuracy: {metrics['high_confidence_accuracy']:.1%}")
+    print("=" * 60)
+
+    # Assert reasonable accuracy
+    assert metrics["accuracy"] > 0.3, f"Accuracy too low: {metrics['accuracy']:.1%}"
+
+
+@pytest.mark.skipif(
+    not RUN_LIVE, reason="Set RUN_LIVE_OPENAI=1 in env to run live OpenAI tests."
+)
+def test_llm_judge_with_validation(mock_test_data):
+    """Test LLM-as-a-judge evaluation with validation pass."""
+    import requests
+    from llm_judge import (
+        compute_validation_metrics,
+        judge_validation_result,
+    )
+    from openai import OpenAI
+
+    print("\n" + "=" * 60)
+    print("Testing LLM Judge WITH Validation Pass")
+    print("=" * 60)
+
+    openai_client = OpenAI()
+    all_judgments = []
+
+    # Test first 2 cases
+    for idx, test_case in enumerate(mock_test_data[:2], 1):
+        patient = test_case["patient"]
+        question_set = test_case["question_set"]
+        expected_answers = test_case["expected_answers"]
+
+        patient_name = f"{patient['first_name']} {patient['last_name']}"
+        print(f"\n[{idx}] Testing patient: {patient_name}")
+
+        # Build payload with validation
+        payload = {
+            "patient": patient,
+            "question_set": question_set,
+            "validate": True,
+        }
+
+        # Call API
+        response = requests.post(
+            "http://localhost:8000/answers", json=payload, timeout=600
+        )
+        assert response.status_code == 200, f"API error: {response.text}"
+
+        # Parse response and judge each answer
+        data = response.json()
+        for ans in data.get("answers", []):
+            q = ans.get("question", {})
+            key = q.get("key")
+            question_text = q.get("content", "")
+            initial_value = ans.get("value")
+            changed_value = ans.get("changed_result")
+            change_needed = ans.get("change_needed")
+            change_rationale = ans.get("change_rationale")
+
+            expected_entry = expected_answers.get(key, {})
+            expected_value = expected_entry.get("value", "unknown")
+
+            # Judge both initial and changed results
+            judgment = judge_validation_result(
+                question_key=key,
+                question_text=question_text,
+                expected_value=str(expected_value),
+                initial_value=str(initial_value),
+                changed_value=str(changed_value) if changed_value is not None else None,
+                change_needed=change_needed,
+                change_rationale=change_rationale,
+                client=openai_client,
+            )
+            all_judgments.append(judgment)
+
+            # Print improvements
+            if judgment.validation_improved_result:
+                print(f"  ✓ Validation improved '{key}'")
+                print(f"    Initial: {initial_value} (wrong)")
+                print(f"    Changed: {changed_value} (correct)")
+
+    # Compute metrics
+    metrics = compute_validation_metrics(all_judgments)
+
+    print("\n" + "-" * 60)
+    print(f"Total Questions: {metrics['total_questions']}")
+    print(f"Initial Accuracy: {metrics['initial_accuracy']:.1%}")
+    print(f"Final Accuracy: {metrics['final_accuracy']:.1%}")
+    print(f"Validation Improvements: {metrics['validation_improvements']}")
+    print(f"Net Improvement: {metrics['net_improvement']:+.1%}")
+    print("=" * 60)
+
+    # Assert that validation doesn't make things worse
+    assert metrics["final_accuracy"] >= metrics["initial_accuracy"] - 0.05, (
+        "Validation significantly degraded results"
+    )

@@ -55,6 +55,11 @@
 - Enabled via `validate: true` in request payload
 - Uses dedicated validation prompt that reviews initial answers against patient context
 - Improves accuracy at cost of additional API call
+- **Validation Metadata**: When validation is enabled, each answer includes:
+  - `change_needed` (bool): Whether the validator determined a change was necessary
+  - `changed_result` (str | bool): The corrected value if a change was made
+  - `change_rationale` (str): Explanation of why the change was necessary
+- These fields allow clients to track what was corrected during validation and understand the reasoning
 
 #### 4. Rationale Display
 - Rationales are now stored in session state and displayed in the UI
@@ -63,7 +68,14 @@
 
 #### 5. Evaluation Pipeline
 - **`tests/generate_mock_data.py`**: Generates mock test cases with ground truth answers
-- **`tests/eval_pipeline.py`**: Runs evaluation and computes F1 score, precision, recall, accuracy
+- **`tests/eval_pipeline.py`**: Runs evaluation and computes F1 score, precision, recall, accuracy (string-based)
+- **`tests/eval_pipeline_llm_judge.py`**: Enhanced evaluation using LLM-as-a-Judge
+  - Uses LLM to judge semantic equivalence rather than string matching
+  - Recognizes clinical terminology variations (e.g., "yes" = "true", "Type 2 Diabetes" = "diabetes mellitus type 2")
+  - Provides confidence levels (high/medium/low) and reasoning for each judgment
+  - Tracks validation improvements and degradations
+  - Computes initial vs. final accuracy for validation pass
+- **`tests/llm_judge.py`**: Core LLM judging module with structured output models
 - Supports both standard and validation modes
 - Saves detailed results to JSON for analysis
 

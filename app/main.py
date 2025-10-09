@@ -40,6 +40,10 @@ class AnswerItem(BaseModel):
     key: str
     value: str | bool
     rationale: str | None = None
+    # Validation-specific fields (populated during validation pass)
+    change_needed: bool | None = None
+    changed_result: str | bool | None = None
+    change_rationale: str | None = None
 
 
 class AnswersResponse(BaseModel):
@@ -117,7 +121,12 @@ def _build_validation_messages(
 ) -> list[dict]:
     system = (
         "You are a clinical QA validator. Re-evaluate the initial answers strictly against the patient context. "
-        "Correct any mistakes and ensure each answer is chart-supported. Return the same JSON schema."
+        "Correct any mistakes and ensure each answer is chart-supported. "
+        "For each answer, you must indicate whether a change was needed:\n"
+        "- If the initial answer was correct, set 'change_needed' to false and keep the original 'value' and 'rationale'.\n"
+        "- If the initial answer needs correction, set 'change_needed' to true, provide the corrected value in 'changed_result', "
+        "and explain why the change was necessary in 'change_rationale'.\n"
+        "Return the same JSON schema with these validation fields populated."
     )
     # Render initial answers with rationales
     init_lines = []
@@ -171,7 +180,33 @@ def _answers_to_output(
                 val = str(item.value).strip().lower() in {"true", "yes", "y", "1"}
         else:
             val = str(item.value)
-        results.append(Answer(question=q, value=val, rationale=item.rationale))
+
+        # Handle validation fields
+        changed_val: str | bool | None = None
+        if item.changed_result is not None:
+            if q.type == "boolean":
+                if isinstance(item.changed_result, bool):
+                    changed_val = item.changed_result
+                else:
+                    changed_val = str(item.changed_result).strip().lower() in {
+                        "true",
+                        "yes",
+                        "y",
+                        "1",
+                    }
+            else:
+                changed_val = str(item.changed_result)
+
+        results.append(
+            Answer(
+                question=q,
+                value=val,
+                rationale=item.rationale,
+                change_needed=item.change_needed,
+                changed_result=changed_val,
+                change_rationale=item.change_rationale,
+            )
+        )
     return AnswerOutput(answers=results)
 
 
