@@ -334,6 +334,8 @@ The current implementation introduces a working variant of the evaluation pipeli
 
 A visual sketch of the proposed evaluation flow illustrates how validation, reasoning, and iterative feedback improve the evaluation loop.
 
+![LLM_as_a_judge_validation_and_eval](https://github.com/user-attachments/assets/be362c8b-2644-4276-844d-4f26a8bcb8f3)
+
 ---
 
 ## Commit History
