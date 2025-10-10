@@ -306,6 +306,36 @@ For detailed setup and usage instructions, please refer to:
 
 ---
 
+## Project Discussion & Evaluation Note
+
+### Context
+
+During ongoing collaboration and live discussion, the following clarification outlines the design intent and rationale behind the **LLM-as-a-Judge** evaluation architecture.
+
+For the **automated prior authorization form-filling task**, it is both efficient and semantically appropriate to:
+
+* **Reduce evaluation complexity** by replacing the F1 score with an **Accuracy score**
+* **Adopt LLM-as-a-Judge** for result validation — allowing the system to determine whether each output is correct in **meaning**, not just by **string equivalence**
+
+This approach addresses real-world semantic variation in clinical text.
+For example, if the expected answer is `"Zedbound 10mg"` and the model outputs `"10mg of Zedbound"`, the **LLM-as-a-Judge** system correctly validates it as equivalent, whereas naive string-matching would fail.
+
+### Implementation Reference
+
+The updated implementation, evaluation tests, and working demo are available below:
+
+* **GitHub Repository:** [HomenShum/LLM-test-suite](https://github.com/HomenShum/LLM-test-suite)
+  *Automated Testing with LLM for Classification, LLM-as-a-Judge, Context Verification & Pruning, and Agent Scaffold Systems*
+* **Live Demo:** [https://llm-test-suite-cafecorner.streamlit.app/](https://llm-test-suite-cafecorner.streamlit.app/)
+
+The current implementation introduces a working variant of the evaluation pipeline using **LLM-as-a-Judge** and replaces the initial string-matching logic with semantic validation for production-grade testing.
+
+### Visual Reference
+
+A visual sketch of the proposed evaluation flow illustrates how validation, reasoning, and iterative feedback improve the evaluation loop.
+
+---
+
 ## Commit History
 
 - `fef8669` - Add validation features, LLM judge evaluation, and comprehensive documentation
