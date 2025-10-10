@@ -31,7 +31,7 @@ const CalendarEvent = z.object({
 });
 
 const completion = await openai.chat.completions.parse({
-  model: "gpt-4o-2024-08-06",
+  model: "gpt-5",
   messages: [
     { role: "system", content: "Extract the event information." },
     { role: "user", content: "Alice and Bob are going to a science fair on Friday." },
@@ -54,7 +54,7 @@ class CalendarEvent(BaseModel):
     participants: list[str]
 
 completion = client.chat.completions.parse(
-    model="gpt-4o-2024-08-06",
+    model="gpt-5",
     messages=[
         {"role": "system", "content": "Extract the event information."},
         {"role": "user", "content": "Alice and Bob are going to a science fair on Friday."},
@@ -67,7 +67,7 @@ event = completion.choices[0].message.parsed
 
 ### Supported models
 
-Structured Outputs is available in our [latest large language models](/docs/models), starting with GPT-4o. Older models like `gpt-4-turbo` and earlier may use [JSON mode](/docs/guides/structured-outputs#json-mode) instead.
+Structured Outputs is available in our [latest large language models](/docs/models), starting with gpt-5. Older models like `gpt-5` and earlier may use [JSON mode](/docs/guides/structured-outputs#json-mode) instead.
 
 When to use Structured Outputs via function calling vs via response\_format
 
@@ -106,13 +106,13 @@ Structured Outputs is the evolution of [JSON mode](/docs/guides/structured-outpu
 
 We recommend always using Structured Outputs instead of JSON mode when possible.
 
-However, Structured Outputs with `response_format: {type: "json_schema", ...}` is only supported with the `gpt-4o-mini`, `gpt-4o-mini-2024-07-18`, and `gpt-4o-2024-08-06` model snapshots and later.
+However, Structured Outputs with `response_format: {type: "json_schema", ...}` is only supported with the `gpt-5-mini`, `gpt-5`, and `gpt-5` model snapshots and later.
 
 ||Structured Outputs|JSON Mode|
 |---|---|---|
 |Outputs valid JSON|Yes|Yes|
 |Adheres to schema|Yes (see supported schemas)|No|
-|Compatible models|gpt-4o-mini, gpt-4o-2024-08-06, and later|gpt-3.5-turbo, gpt-4-* and gpt-4o-* models|
+|Compatible models|gpt-5-mini, gpt-5, and later models|
 |Enabling|response_format: { type: "json_schema", json_schema: {"strict": true, "schema": ...} }|response_format: { type: "json_object" }|
 
 Examples
@@ -144,7 +144,7 @@ const MathReasoning = z.object({
 });
 
 const completion = await openai.chat.completions.parse({
-  model: "gpt-4o-2024-08-06",
+  model: "gpt-5",
   messages: [
     { role: "system", content: "You are a helpful math tutor. Guide the user through the solution step by step." },
     { role: "user", content: "how can I solve 8x + 7 = -23" },
@@ -170,7 +170,7 @@ class MathReasoning(BaseModel):
     final_answer: str
 
 completion = client.chat.completions.parse(
-    model="gpt-4o-2024-08-06",
+    model="gpt-5",
     messages=[
         {"role": "system", "content": "You are a helpful math tutor. Guide the user through the solution step by step."},
         {"role": "user", "content": "how can I solve 8x + 7 = -23"}
@@ -186,7 +186,7 @@ curl https://api.openai.com/v1/chat/completions \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "gpt-4o-2024-08-06",
+    "model": "gpt-5",
     "messages": [
       {
         "role": "system",
@@ -280,7 +280,7 @@ const ResearchPaperExtraction = z.object({
 });
 
 const completion = await openai.chat.completions.parse({
-  model: "gpt-4o-2024-08-06",
+  model: "gpt-5",
   messages: [
     { role: "system", content: "You are an expert at structured data extraction. You will be given unstructured text from a research paper and should convert it into the given structure." },
     { role: "user", content: "..." },
@@ -304,7 +304,7 @@ class ResearchPaperExtraction(BaseModel):
     keywords: list[str]
 
 completion = client.chat.completions.parse(
-    model="gpt-4o-2024-08-06",
+    model="gpt-5",
     messages=[
         {"role": "system", "content": "You are an expert at structured data extraction. You will be given unstructured text from a research paper and should convert it into the given structure."},
         {"role": "user", "content": "..."}
@@ -320,7 +320,7 @@ curl https://api.openai.com/v1/chat/completions \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "gpt-4o-2024-08-06",
+    "model": "gpt-5",
     "messages": [
       {
         "role": "system",
@@ -410,7 +410,7 @@ const UI = z.lazy(() =>
 );
 
 const completion = await openai.chat.completions.parse({
-  model: "gpt-4o-2024-08-06",
+  model: "gpt-5",
   messages: [
     {
       role: "system",
@@ -456,7 +456,7 @@ class Response(BaseModel):
     ui: UI
 
 completion = client.chat.completions.parse(
-    model="gpt-4o-2024-08-06",
+    model="gpt-5",
     messages=[
         {"role": "system", "content": "You are a UI generator AI. Convert the user input into a UI."},
         {"role": "user", "content": "Make a User Profile Form"}
@@ -473,7 +473,7 @@ curl https://api.openai.com/v1/chat/completions \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "gpt-4o-2024-08-06",
+    "model": "gpt-5",
     "messages": [
       {
         "role": "system",
@@ -634,7 +634,7 @@ const ContentCompliance = z.object({
 });
 
 const completion = await openai.chat.completions.parse({
-  model: "gpt-4o-2024-08-06",
+  model: "gpt-5",
   messages: [
     { role: "system", content: "Determine if the user input violates specific guidelines and explain if they do." },
     { role: "user", content: "How do I prepare for a job interview?" },
@@ -664,7 +664,7 @@ class ContentCompliance(BaseModel):
     explanation_if_violating: Optional[str]
 
 completion = client.chat.completions.parse(
-    model="gpt-4o-2024-08-06",
+    model="gpt-5",
     messages=[
         {"role": "system", "content": "Determine if the user input violates specific guidelines and explain if they do."},
         {"role": "user", "content": "How do I prepare for a job interview?"}
@@ -680,7 +680,7 @@ curl https://api.openai.com/v1/chat/completions \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "gpt-4o-2024-08-06",
+    "model": "gpt-5",
     "messages": [
       {
         "role": "system",
@@ -792,7 +792,7 @@ Under the hood, the SDK takes care of supplying the JSON schema corresponding to
 
 ```python
 completion = client.chat.completions.parse(
-    model="gpt-4o-2024-08-06",
+    model="gpt-5",
     messages=[
         {"role": "system", "content": "You are a helpful math tutor. Guide the user through the solution step by step."},
         {"role": "user", "content": "how can I solve 8x + 7 = -23"}
@@ -803,7 +803,7 @@ completion = client.chat.completions.parse(
 
 ```javascript
 const completion = await openai.chat.completions.parse({
-  model: "gpt-4o-2024-08-06",
+  model: "gpt-5",
   messages: [
     { role: "system", content: "You are a helpful math tutor. Guide the user through the solution step by step." },
     { role: "user", content: "how can I solve 8x + 7 = -23" },
@@ -821,7 +821,7 @@ This can happen in the case of a refusal, if the model refuses to answer for saf
 ```javascript
 try {
   const completion = await openai.chat.completions.create({
-    model: "gpt-4o-2024-08-06",
+    model: "gpt-5",
     messages: [{
         role: "system",
         content: "You are a helpful math tutor. Guide the user through the solution step by step.",
@@ -892,7 +892,7 @@ try {
 ```python
 try:
     response = client.chat.completions.create(
-        model="gpt-4o-2024-08-06",
+        model="gpt-5",
         messages=[
             {
                 "role": "system",
@@ -962,7 +962,7 @@ For example:
 
 ```python
 response = client.chat.completions.create(
-    model="gpt-4o-2024-08-06",
+    model="gpt-5",
     messages=[
         {"role": "system", "content": "You are a helpful math tutor. Guide the user through the solution step by step."},
         {"role": "user", "content": "how can I solve 8x + 7 = -23"}
@@ -1001,7 +1001,7 @@ print(response.choices[0].message.content)
 
 ```javascript
 const response = await openai.chat.completions.create({
-    model: "gpt-4o-2024-08-06",
+    model: "gpt-5",
     messages: [
         { role: "system", content: "You are a helpful math tutor. Guide the user through the solution step by step." },
         { role: "user", content: "how can I solve 8x + 7 = -23" }
@@ -1044,7 +1044,7 @@ curl https://api.openai.com/v1/chat/completions \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "gpt-4o-2024-08-06",
+    "model": "gpt-5",
     "messages": [
       {
         "role": "system",
@@ -1096,7 +1096,7 @@ This can happen in the case of a refusal, if the model refuses to answer for saf
 ```javascript
 try {
   const completion = await openai.chat.completions.create({
-    model: "gpt-4o-2024-08-06",
+    model: "gpt-5",
     messages: [{
         role: "system",
         content: "You are a helpful math tutor. Guide the user through the solution step by step.",
@@ -1167,7 +1167,7 @@ try {
 ```python
 try:
     response = client.chat.completions.create(
-        model="gpt-4o-2024-08-06",
+        model="gpt-5",
         messages=[
             {
                 "role": "system",
@@ -1278,7 +1278,7 @@ steps: list[Step]
 final_answer: str
 
 completion = client.chat.completions.parse(
-model="gpt-4o-2024-08-06",
+model="gpt-5",
 messages=[
 {"role": "system", "content": "You are a helpful math tutor. Guide the user through the solution step by step."},
 {"role": "user", "content": "how can I solve 8x + 7 = -23"}
@@ -1308,7 +1308,7 @@ final_answer: z.string(),
 });
 
 const completion = await openai.chat.completions.parse({
-model: "gpt-4o-2024-08-06",
+model: "gpt-5",
 messages: [
 { role: "system", content: "You are a helpful math tutor. Guide the user through the solution step by step." },
 { role: "user", content: "how can I solve 8x + 7 = -23" },
@@ -1333,7 +1333,7 @@ The API response from a refusal will look something like this:
   "id": "chatcmpl-9nYAG9LPNonX8DAyrkwYfemr3C8HC",
   "object": "chat.completion",
   "created": 1721596428,
-  "model": "gpt-4o-2024-08-06",
+  "model": "gpt-5",
   "choices": [
     {
       "index": 0,
@@ -1407,7 +1407,7 @@ class EntitiesModel(BaseModel):
 client = OpenAI()
 
 with client.beta.chat.completions.stream(
-    model="gpt-4.1",
+    model="gpt-5",
     messages=[
         {"role": "system", "content": "Extract entities from the input text"},
         {
@@ -1445,7 +1445,7 @@ const EntitiesSchema = z.object({
 
 const stream = openai.beta.chat.completions
   .stream({
-    model: "gpt-4.1",
+    model: "gpt-5",
     messages: [
       { role: "system", content: "Extract entities from the input text" },
       {
@@ -1487,7 +1487,7 @@ class GetWeather(BaseModel):
 client = OpenAI()
 
 with client.beta.chat.completions.stream(
-    model="gpt-4.1",
+    model="gpt-5",
     messages=[
         {
             "role": "user",
@@ -1520,7 +1520,7 @@ const client = new OpenAI();
 
 const stream = client.beta.chat.completions
   .stream({
-    model: "gpt-4.1",
+    model: "gpt-5",
     messages: [
       {
         role: "user",
@@ -2027,7 +2027,7 @@ const we_did_not_specify_stop_tokens = true;
 
 try {
   const response = await openai.chat.completions.create({
-    model: "gpt-3.5-turbo-0125",
+    model: "gpt-5",
     messages: [
       {
         role: "system",
@@ -2078,7 +2078,7 @@ we_did_not_specify_stop_tokens = True
 
 try:
     response = client.chat.completions.create(
-        model="gpt-3.5-turbo-0125",
+        model="gpt-5",
         messages=[
             {"role": "system", "content": "You are a helpful assistant designed to output JSON."},
             {"role": "user", "content": "Who won the world series in 2020? Please respond in the format {winner: ...}"}

@@ -116,7 +116,7 @@ class PatientDataGenerator:
         """Configure the AI agent for generating visit notes."""
         try:
             api_key = get_openai_api_key()
-            model = OpenAIModel("gpt-4.1", provider=OpenAIProvider(api_key=api_key))
+            model = OpenAIModel("gpt-5", provider=OpenAIProvider(api_key=api_key))
 
             self.visit_note_agent = Agent(
                 model,

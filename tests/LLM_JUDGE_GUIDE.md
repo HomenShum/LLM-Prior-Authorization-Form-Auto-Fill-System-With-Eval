@@ -207,11 +207,11 @@ Results are saved to JSON files with full details:
 Compare different models or prompts:
 
 ```bash
-# Test with gpt-4o-mini
-OPENAI_MODEL=gpt-4o-mini python -m tests.eval_pipeline_llm_judge --mode both
+# Test with gpt-5-mini
+OPENAI_MODEL=gpt-5-mini python -m tests.eval_pipeline_llm_judge --mode both
 
-# Test with gpt-4o
-OPENAI_MODEL=gpt-4o python -m tests.eval_pipeline_llm_judge --mode both
+# Test with gpt-5
+OPENAI_MODEL=gpt-5 python -m tests.eval_pipeline_llm_judge --mode both
 ```
 
 ### 2. Validating Validation Pass

@@ -16,7 +16,7 @@ A full-stack healthcare automation application that uses LLMs to automatically c
 
 - **Backend**: FastAPI with Pydantic models
 - **Frontend**: Streamlit interactive UI
-- **LLM**: OpenAI GPT (gpt-4o-mini/gpt-4o) with structured outputs
+- **LLM**: OpenAI GPT (gpt-5-mini/gpt-5) with structured outputs
 - **Evaluation**: F1 score metrics + LLM judge with confidence scoring
 
 ## Use Case
@@ -86,7 +86,7 @@ This is likely the result of the prompt not being optimized for the validation p
 
 **Further optimization needed**:
 - Incorporate special prompt design
-- Use larger parameter reasoning model rather than gpt-4o-mini
+- Use larger parameter reasoning model rather than gpt-5-mini
 - Add few-shot examples for edge cases
 
 #### Detailed Test Logs
