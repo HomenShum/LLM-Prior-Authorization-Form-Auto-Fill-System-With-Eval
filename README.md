@@ -1,5 +1,43 @@
 # AI-Powered Prior Authorization Form Auto-Fill System
 
+## Developer and coding-agent handoff (source review: 2026-10-15)
+
+A developer receiving this repository needs to identify the API, the separate UI, the configuration and data boundaries, and which checks can contact a model provider. This is a FastAPI and Streamlit demonstration for generating prior-authorization form answers. This source review does not establish medical correctness, clinical validation, a working installation, current evaluation accuracy or production readiness.
+
+This handoff describes source at [10e883b](https://github.com/HomenShum/LLM-Prior-Authorization-Form-Auto-Fill-System-With-Eval/tree/10e883b6f5f5ac225bdb64aafaeca4f5451a6505). No repository import, installation, API/UI startup, container build, provider call or evaluation was performed for it. The original README below is retained as historical source; its production-ready, working-feature, model and result statements are not current verification.
+
+## Start with the source contract
+
+| Developer question | Source to inspect |
+| --- | --- |
+| Where is the API application and its routes? | [app/main.py](app/main.py) |
+| Where is the separate browser UI and its API configuration? | [streamlit_app.py](streamlit_app.py) |
+| What Python/package requirements are declared? | [pyproject.toml](pyproject.toml) and [requirements.txt](requirements.txt) |
+| What does the supplied container attempt to start? | [Dockerfile](Dockerfile) |
+| What do the evaluation commands and expected answers mean? | [tests/README.md](tests/README.md) |
+| Which tests are gated behind live provider access? | [tests/test_answers.py](tests/test_answers.py) |
+| What design context accompanies the prototype? | [DESIGN_SPECS.md](DESIGN_SPECS.md) |
+
+The backend source defines the FastAPI app in `app/main.py` and declares `/`, `/answers`, `/process-files` and `/answers/stream` routes. The UI reads the configuration name `API_BASE_URL`, defaults to a local API on port 8000, and references the answer, streaming and file-processing routes. These are source declarations, not observed endpoint responses.
+
+The UI's own help text names `uvicorn app.main:app --reload` and `streamlit run streamlit_app.py`. These are source-backed launch strings to review after the dependency/configuration contract is established, not a tested two-command setup recipe. Importing the backend calls its environment-setup helper; this review did not establish import or startup safety.
+
+## Resolve setup boundaries before running anything
+
+- **Package roles are incomplete as a first-run contract.** `pyproject.toml` declares Python `>=3.10,<3.14` and API dependencies. The OpenAI SDK is listed in optional/development groups; `requirements.txt` lists only `streamlit`. These declarations do not prove the effective installed environment, UI dependency closure or provider compatibility. The lockfile graph was not inspected. No installation command is presented as verified.
+- **The container names a different module.** Its command selects `uvicorn main:app`; the tracked root has no `main.py`, while the API source and UI help use `app/main.py` / `app.main:app`. This is a source-level entrypoint mismatch, not an observed container failure. The Dockerfile also runs dependency synchronization before copying the project source. Build order, packaging and any later `uv run` synchronization need a separate measured investigation; no Docker or dependency fix is included here.
+- **Configuration and fixture paths are not permission to use their contents.** The tree includes `.env.example`, `app/env.py` and sample/test JSON paths. The UI and test fixture reference local patient/question files. Their bodies, credential/environment values and prompt-data files were not inspected for this handoff. Do not infer that tracked examples are approved for external provider use or clinically validated. Establish the permitted configuration and synthetic-input contract before a separately authorized run.
+
+## Read evaluation claims with their scope
+
+The six actual test functions in `tests/test_answers.py` carry a live-provider skip gate controlled by `RUN_LIVE_OPENAI`. The fixture named `test_data` is not a seventh test. Importing the test module also imports the API, so a skipped live test list is not proof of a safe or functioning offline workflow.
+
+The tests guide states that its API-generated expected answers are not human-validated ground truth. Historical F1 scores, model-judge assessments and embedded test logs below have not been reproduced here and do not establish current accuracy or clinical correctness. No evaluation data, sample payload, prompt-data body or historical log body was used to establish the source map above.
+
+For the next implementation slice, name the owner, intended API/UI environment, allowed state changes, dependency/configuration contract, authorized inputs and one observable startup/evaluation scenario. Actual runtime or medical claims require their own evidence. The existing [Commit History](#commit-history) records this README-only documentation change alongside the five preserved earlier entries.
+
+## Historical README body (preserved source; dated documentation entry appended)
+
 A full-stack healthcare automation application that uses LLMs to automatically complete prior authorization forms from patient clinical data. Built with **FastAPI** backend and **Streamlit** frontend, the system leverages OpenAI's structured outputs to extract and validate medical information.
 
 ## Core Features
@@ -345,3 +383,5 @@ A visual sketch of the proposed evaluation flow illustrates how validation, reas
 - `8fb1969` - feat: Implement prior authorization auto-fill with validation loop and F1 evaluation
 - `336a1e2` - initial note
 - `6e2b2ba` - Initial commit
+
+- 2026-10-15 — README handoff: added a source map and explicit unverified API/UI setup, Docker-module, dependency, fixture and evaluation boundaries. Historical README material and the five earlier commit entries were preserved; no runtime, provider, algorithm or medical-validation change.
